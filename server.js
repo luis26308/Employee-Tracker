@@ -24,11 +24,11 @@ function start() {
             choices: [
                 "view all employees",
                 "view all employees by department",
-                "view all employees by manager",
+                "view all employees by role",
                 "add employee",
+                "add department",
+                "add role",
                 "remove employee",
-                "update employee",
-                "update manager",
                 "Done"
             ]
         }
@@ -41,10 +41,16 @@ function start() {
                 case "view all employees by department": deptEmployees();
                     break;
 
-                case "view all employees by manager": mgrEmployees();
+                case "view all employees by role": roleEmployees();
                     break;
 
                 case "add employee": addEmployee();
+                    break;
+
+                case "add department": addDepartment();
+                    break;
+
+                case "add role": addRole();
                     break;
 
                 case "remove employee": removeEmployee();
@@ -53,8 +59,8 @@ function start() {
                 case "update employee": updateEmployee();
                     break;
 
-                case "update manager": updateManager();
-                    break;
+                // case "update manager": updateManager();
+                //     break;
 
                 default: connection.end();
             }
@@ -73,7 +79,7 @@ function deptEmployees() {
 
 }
 
-function mgrEmployees() {
+function roleEmployees() {
 
 
 }
@@ -111,9 +117,9 @@ function addEmployee() {
                 if (err) throw err;
                 console.table(res);
                 start();
-            })
-        })
-}
+            });
+        });
+};
 
 function removeEmployee() {
     inquirer.prompt([
@@ -135,9 +141,57 @@ function removeEmployee() {
                 if (err) throw err;
                 console.table(res);
                 start();
-            })
-        })
-}
+            });
+        });
+};
+
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What department would you like to add?",
+            name: "name"
+        }
+    ])
+        .then(function (answer) {
+            const queryString = "INSERT INTO department (name) VALUES (?)";
+            connection.query(queryString, [answer.name], function (err, res) {
+                if (err) throw err;
+                console.table(res);
+                start();
+            });
+        });
+};
+
+function addRole() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What role would you like to add?",
+            name: "title"
+        },
+
+        {
+            type: "input",
+            message: "What is the salary for this role?",
+            name: "salary"
+        },
+
+        {
+            type: "input",
+            message: "What is the department id?",
+            name: "department_id"
+        }
+    ])
+    .then(function(answer) {
+        const queryString = "INSERT INTO role (title, salary, department_id)";
+        connection.query(queryString, [answer.title, answer.salary, answer.department_id], function (err, res) {
+            if (err) throw err;
+                console.table(res);
+                start();
+        });
+    });
+};
 
 function updateEmployee() {
     // this function will update title, role, salary, and manager for the selected employee
@@ -145,8 +199,8 @@ function updateEmployee() {
 
 }
 
-function updateManager() {
-    //  this function will update title, role, salary, and employees for the selected manager
+// function updateManager() {
+//     //  this function will update title, role, salary, and employees for the selected manager
 
 
-}
+// }
