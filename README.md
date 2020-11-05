@@ -16,6 +16,9 @@
   ## Installation
   The installation process begins with npm install followed by installing the required dependencies of inquirer, mysql, and promise-mysql.
 
+  ## Usage
+  ![Demo gif](demo.gif) 
+
   ## License
   MIT License
 
