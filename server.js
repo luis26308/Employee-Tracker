@@ -1,13 +1,16 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const promisemysql = require("promise-mysql");
 
-var connection = mysql.createConnection({
+const connectionProperties = {
     host: "localhost",
     port: 3306,
     user: "root",
     password: "root",
     database: "employeeTracker_db"
-});
+}
+
+const connection = mysql.createConnection(connectionProperties);
 
 connection.connect(function (err) {
     if (err) throw err;
@@ -56,8 +59,8 @@ function start() {
                 case "remove employee": removeEmployee();
                     break;
 
-                case "update employee": updateEmployee();
-                    break;
+                // case "update employee": updateEmployee();
+                //     break;
 
                 // case "update manager": updateManager();
                 //     break;
@@ -77,10 +80,39 @@ function allEmployees() {
 
 function deptEmployees() {
 
+    let deptArray = [];
+
+    promisemysql.createConnection(connectionProperties)
+        .then(function (connection) {
+            return connection.query("SELECT name FROM department");
+        })
+        .then(function (value) {
+            deptQuery = value;
+            for (let i = 0; i < value.length; i++) {
+                deptArray.push(value[i].name);
+            }
+        })
+        .then(function () {
+            inquirer.prompt([
+                {
+                    type: "list",
+                    message: "What department would you like to check the employees in?",
+                    name: "department",
+                    choices: deptArray
+                }
+            ])
+                .then(function (answer) {
+                    const queryString = "SELECT * FROM employee WHERE department.";
+                    connection.query(queryString, function (err, res) {
+                        if (err) throw err;
+                        console.table(res);
+                        start();
+                    })
+                })
+        })
 }
 
 function roleEmployees() {
-
 
 }
 
@@ -183,24 +215,20 @@ function addRole() {
             name: "department_id"
         }
     ])
-    .then(function(answer) {
-        const queryString = "INSERT INTO role (title, salary, department_id)";
-        connection.query(queryString, [answer.title, answer.salary, answer.department_id], function (err, res) {
-            if (err) throw err;
+        .then(function (answer) {
+            const queryString = "INSERT INTO role (title, salary, department_id)";
+            connection.query(queryString, [answer.title, answer.salary, answer.department_id], function (err, res) {
+                if (err) throw err;
                 console.table(res);
                 start();
+            });
         });
-    });
 };
 
-function updateEmployee() {
-    // this function will update title, role, salary, and manager for the selected employee
-
-
-}
+// function updateEmployee() {
+//     // this function will update title, role, salary, and manager for the selected employee
+// }
 
 // function updateManager() {
 //     //  this function will update title, role, salary, and employees for the selected manager
-
-
 // }
